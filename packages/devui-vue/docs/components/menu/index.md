@@ -21,13 +21,13 @@ Menu 组件通常用于导航.
     </d-menu-item>
     <d-sub-menu title="课程" key="course">
       <d-menu-item key="c"> C </d-menu-item>
-      <d-sub-menu title="Python" key="python">
+      <d-sub-menu title="Python" key="python" disabled>
         <d-menu-item key="basic"> 基础 </d-menu-item>
         <d-menu-item key="advanced"> 进阶 </d-menu-item>
       </d-sub-menu>
     </d-sub-menu>
     <d-menu-item key="person">个人</d-menu-item>
-    <d-menu-item key="custom" href="https://www.baidu.com"> Link To Baidu </d-menu-item>
+    <d-menu-item key="custom" href="https://www.baidu.com" disabled> Link To Baidu </d-menu-item>
   </d-menu>
   <d-slider :min="0" :max="480" v-model="width"></d-slider>
 </template>
@@ -82,14 +82,14 @@ let width = ref(480);
       <template #icon>
         <i class="icon-system"></i>
       </template>
-      <d-menu-item key="system">
+      <d-menu-item key="system-item">
         <span>System item</span>
       </d-menu-item>
       <d-sub-menu title="Setting" key="setting">
         <template #icon>
           <i class="icon-setting"></i>
         </template>
-        <d-menu-item key="setting">
+        <d-menu-item key="setting-item">
           <span>Setting item</span>
         </d-menu-item>
       </d-sub-menu>
@@ -127,14 +127,14 @@ let width = ref(480);
 
 :::
 
-
-### 仅一项展开
+### 仅展开一项根子菜单
 
 :::demo 通过子菜单状态改变事件修改```open-keys```数组达到效果
 
 ``` vue
   <template>
-    <d-menu @submenu-change="submenuChange" :default-select-keys="['item1']" :open-keys="openKeys" width="256px">
+    <d-menu @submenu-change="submenuChange" :default-select-keys="['item1']" :open-keys="openKeys" width="256px"
+    >
       <d-sub-menu title="submenu-1" key="submenu-1">
         <template #icon>
           <i class="icon-infomation"></i>
@@ -142,6 +142,22 @@ let width = ref(480);
         <d-menu-item key="subemenu-item-1">
           <span>submenu-item-1</span>
         </d-menu-item>
+        <d-sub-menu title="submenu-4" key="submenu-4">
+          <template #icon>
+            <i class="icon-infomation"></i>
+          </template>
+          <d-menu-item key="subemenu-item-1">
+            <span>submenu-item-1</span>
+          </d-menu-item>
+        </d-sub-menu>
+        <d-sub-menu title="submenu-5" key="submenu-5">
+          <template #icon>
+            <i class="icon-infomation"></i>
+          </template>
+          <d-menu-item key="subemenu-item-1">
+            <span>submenu-item-1</span>
+          </d-menu-item>
+        </d-sub-menu>
       </d-sub-menu>
       <d-sub-menu title="submenu-2" key="submenu-2">
         <template #icon>
@@ -168,12 +184,16 @@ let width = ref(480);
   export default defineComponent({
     setup() {
       const openKeys = ref(['submenu-1']);
+      const rootSubMenuKeys = ref(['submenu-1','submenu-2','submenu-3']);
       const submenuChange = (e) => {
-        console.log(e)
-        openKeys.value.forEach(element => {
-          openKeys.value.shift()
-        });
-        openKeys.value.push(e.key)
+        console.log(e);
+        const {key} = e;
+        if (rootSubMenuKeys.value.includes(key)){
+          while (openKeys.value.length){
+            openKeys.value.shift();
+          }
+          openKeys.value.push(key);
+        }
       };
       return {
         openKeys,
@@ -205,14 +225,14 @@ let width = ref(480);
       <template #icon>
         <i class="icon-system"></i>
       </template>
-      <d-menu-item key="system">
+      <d-menu-item key="system-item">
         <span>System item</span>
       </d-menu-item>
       <d-sub-menu title="Setting" key="setting">
         <template #icon>
           <i class="icon-setting"></i>
         </template>
-        <d-menu-item key="setting">
+        <d-menu-item key="setting-item">
           <span>Setting item</span>
         </d-menu-item>
       </d-sub-menu>
@@ -247,7 +267,7 @@ const changeCollapsed = () => {
       <template #icon>
         <i class="icon-setting"></i>
       </template>
-      <d-menu-item key="setting">
+      <d-menu-item key="setting-item">
         <span>Setting item</span>
       </d-menu-item>
     </d-sub-menu>
@@ -289,7 +309,8 @@ export default defineComponent({
 ```vue
 <template>
   <d-button @click="changeDisabled">changeDisabled</d-button>
-  <d-menu mode="vertical" :width="width + 'px'" :default-select-keys="['item1']" :collapsed="collapsed">
+  <d-button @click="addSelect">change select</d-button>
+  <d-menu mode="vertical" :width="width + 'px'" :default-select-keys="selectKeys" :collapsed="collapsed">
     <d-menu-item key="item1" :disabled="isDisabled">
       <template #icon>
         <i class="icon-homepage"></i>
@@ -300,14 +321,14 @@ export default defineComponent({
       <template #icon>
         <i class="icon-system"></i>
       </template>
-      <d-menu-item key="system">
+      <d-menu-item key="system-item">
         <span>System item</span>
       </d-menu-item>
       <d-sub-menu title="Setting" key="icon-setting">
         <template #icon>
           <i class="icon-setting"></i>
         </template>
-        <d-menu-item key="setting">
+        <d-menu-item key="setting-item">
           <span>Setting item</span>
         </d-menu-item>
       </d-sub-menu>
@@ -321,17 +342,26 @@ export default defineComponent({
 import { ref } from 'vue';
 let collapsed = ref(false);
 let isDisabled = ref(false);
+let selectKeys = ref([]);
 let width = ref(256);
 const changeDisabled = () => {
   isDisabled.value = !isDisabled.value;
   console.log(isDisabled.value);
 };
+const addSelect = () => {
+  if (selectKeys.value.includes('system-item')){
+    selectKeys.value.pop();
+  } else {
+    selectKeys.value.push('system-item');
+  }
+  console.log(selectKeys.value);
+}
 </script>
 ```
 
 :::
 
-### d-menu 参数
+### Menu 参数
 
 | 参数                | 类型                  | 默认       | 说明                                                                            | 跳转 Demo                 |
 | ------------------- | --------------------- | ---------- | ------------------------------------------------------------------------------- | ------------------------- |
@@ -344,7 +374,7 @@ const changeDisabled = () => {
 | default-select-keys | Array                 | []         | 默认选择菜单项 key 值                                                           | [基本用法](#基本用法)     |
 | router              | Boolean               | false      | 是否启用`vue-router`模式。启用该模式会在激活导航时以 key 作为 path 进行路由跳转 | -                         |
 
-### d-menu 事件
+### Menu 事件
 
 | 事件           | 类型                                                                                | 说明                                                 | 跳转 Demo             |
 | -------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------- |
@@ -352,7 +382,7 @@ const changeDisabled = () => {
 | deselect       | `(e: {type: 'deselect', key: string, el: HTMLElement, e: PointerEvent})=>void`      | 取消选中时触发该事件，如果菜单不是多选菜单不会被触发 | [取消多选](#取消多选) |
 | submenu-change | `(e: {type: 'submenu-change', state: boolean, key: string, el: HTMLElement})=>void` | 子菜单状态被更改时会触发                             | [取消多选](#取消多选) |
 
-### d-menu-item
+### MenuItem 参数
 
 |   参数   |  类型   | 默认  |          说明           |       跳转 Demo       |
 | :------: | :-----: | :---: | :---------------------: | :-------------------: |
@@ -361,20 +391,20 @@ const changeDisabled = () => {
 |   href   | string  |  ''   | 单击菜单项后跳转的页面  | [基本用法](#基本用法) |
 |  route   | object  |   -   |   Vue Router 路径对象   |           -           |
 
-### d-sub-menu
+### SubMenu 参数
 
 |   参数   |  类型   | 默认  |      说明      |       跳转 Demo       |
 | :------: | :-----: | :---: | :------------: | :-------------------: |
 |  title   | String  |  ''   |   子菜单标题   | [基本用法](#基本用法) |
 | disabled | boolean | false | 是否禁用子菜单 |           -           |
 
-### d-menu-item 插槽
+### MenuItem 插槽
 
 | 插槽名 |         说明          |
 | :----: | :-------------------: |
 |  icon  | 用于定义菜单项的 icon |
 
-### d-sub-menu 插槽
+### SubMenu 插槽
 
 | 插槽名 |           说明            |
 | :----: | :-----------------------: |

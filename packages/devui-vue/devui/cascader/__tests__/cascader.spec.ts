@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 import { useNamespace } from '../../shared/hooks/use-namespace';
 import { ref, reactive, nextTick } from 'vue';
 import DCascader from '../src/cascader';
+import { Form as DForm, FormItem as DFormItem } from '../../form';
 
 jest.mock('../../locale/create', () => ({
   createI18nTranslate: () => jest.fn(),
@@ -16,9 +17,14 @@ const closeClass = ns.e('close');
 const panelClass = ns.e('panel');
 const suggestListClass = ns.e('suggest-list');
 
-const inputNs = useNamespace('input', true);
-const inputInnerClass = inputNs.e('inner');
-const inputDisabledClass = inputNs.m('disabled');
+const dotInputNs = useNamespace('input', true);
+const inputNs = useNamespace('input');
+
+const inputClass = dotInputNs.b();
+const inputInnerClass = dotInputNs.e('inner');
+const inputDisabledClass = dotInputNs.m('disabled');
+const inputSizeSmClass = inputNs.m('sm');
+const inputSizeLgClass = inputNs.m('lg');
 
 const OPTIONS = [
   {
@@ -129,13 +135,16 @@ describe('cascader', () => {
 
     await input.trigger('click');
     await nextTick();
-    expect(wrapper.find(dropMenuWrapperClass).exists()).toBeTruthy();
+    const dropdownMenu = document.querySelector(dropMenuWrapperClass);
+    expect(dropdownMenu).toBeTruthy();
 
-    const ulList = wrapper.findAll(ulClass);
-    const firstUlLis = ulList[0].findAll(liClass);
-    expect(firstUlLis[1].classes()).toContain('leaf-active');
-    const selectUlLis = ulList[1].findAll(liClass);
-    expect(selectUlLis[2].classes()).toContain('leaf-active');
+    const ulList = document.querySelectorAll(ulClass);
+    const firstUlLis = ulList[0].querySelectorAll(liClass);
+    expect(firstUlLis[1].classList).toContain('leaf-active');
+    const selectUlLis = ulList[1].querySelectorAll(liClass);
+    expect(selectUlLis[2].classList).toContain('leaf-active');
+
+    wrapper.unmount();
   });
 
   it('cascader showPath work', async () => {
@@ -156,6 +165,8 @@ describe('cascader', () => {
 
     const input = wrapper.find(inputInnerClass);
     expect(input.element.value).toBe('option2.1 / option2.1-3');
+
+    wrapper.unmount();
   });
 
   it('cascader clearable work', async () => {
@@ -183,6 +194,8 @@ describe('cascader', () => {
     await nextTick();
     const input = wrapper.find(inputInnerClass);
     expect(input.element.value).toBe('');
+
+    wrapper.unmount();
   });
 
   it('cascader disabled work', async () => {
@@ -203,6 +216,8 @@ describe('cascader', () => {
 
     const disabledInput = wrapper.find(inputDisabledClass);
     expect(disabledInput.exists()).toBeTruthy();
+
+    wrapper.unmount();
   });
 
   it('cascader filterable work', async () => {
@@ -227,14 +242,54 @@ describe('cascader', () => {
       setTimeout(resolve, 300);
     });
 
-    const panel = wrapper.find(panelClass);
-    expect(panel.exists()).toBeTruthy();
+    const panel = document.querySelector(panelClass);
+    expect(panel).toBeTruthy();
 
-    const suggestionList = wrapper.findAll(suggestListClass);
+    const suggestionList = document.querySelectorAll(suggestListClass);
     expect(suggestionList.length).toBe(2);
 
-    suggestionList[1].trigger('click');
+    await suggestionList[1].dispatchEvent(new Event('click'));
     await nextTick();
     expect(input.element.value).toBe('option2.1-3');
+
+    wrapper.unmount();
+  });
+
+  it('cascader props size priority', async () => {
+    const options = reactive(OPTIONS);
+    const dFormSize = ref('lg');
+    const dCascaderSize = ref('sm');
+
+    const wrapper = mount({
+      components: { DCascader, DForm, DFormItem },
+      template: `
+        <DForm :size="dFormSize">
+        <DFormItem>
+          <d-cascader  :options="options" :size="dCascaderSize"></d-cascader>
+        </DFormItem>
+        </DForm>`,
+      setup() {
+        return {
+          dFormSize,
+          dCascaderSize,
+          options
+        };
+      },
+    });
+
+    const dSearch = wrapper.find(inputClass);
+    // form 与 元素同时存在size 属性，以元素为准。
+    expect(dSearch.classes()).toContain(inputSizeSmClass);
+
+    dCascaderSize.value = '';
+    await nextTick();
+    expect(dSearch.classes()).toContain(inputSizeLgClass);
+
+    dFormSize.value = '';
+    await nextTick();
+    expect(dSearch.classes()).not.toContain(inputSizeLgClass);
+    expect(dSearch.classes()).not.toContain(inputSizeSmClass);
+
+    wrapper.unmount();
   });
 });

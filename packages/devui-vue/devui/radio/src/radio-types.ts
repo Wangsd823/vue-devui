@@ -1,6 +1,6 @@
 import type { InjectionKey, PropType, Ref, ExtractPropTypes, ComputedRef } from 'vue';
 export type valueTypes = string | number | boolean;
-export type sizeTypes = 'lg' | 'md' | 'sm' | 'xs';
+export type sizeTypes = 'lg' | 'md' | 'sm';
 
 /** radio、radio-group 共用 props */
 const radioCommonProps = {
@@ -25,8 +25,7 @@ const radioCommonProps = {
     default: false,
   },
   size: {
-    type: String as PropType<sizeTypes>,
-    default: 'md',
+    type: String as PropType<sizeTypes>
   },
 };
 

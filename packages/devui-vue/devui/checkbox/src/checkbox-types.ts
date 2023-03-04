@@ -1,7 +1,7 @@
 import { PropType, InjectionKey, Ref, ExtractPropTypes, ComputedRef } from 'vue';
 
 type Direction = 'row' | 'column';
-type Size = 'lg' | 'md' | 'sm' | 'xs';
+type Size = 'lg' | 'md' | 'sm';
 
 const commonProps = {
   name: {
@@ -36,8 +36,7 @@ const commonProps = {
     default: undefined,
   },
   size: {
-    type: String as PropType<Size>,
-    default: 'md',
+    type: String as PropType<Size>
   },
 } as const;
 
@@ -147,7 +146,7 @@ export type UseCheckboxFn = {
   direction: string | undefined;
   size: ComputedRef<string>;
   border: ComputedRef<boolean>;
-  handleClick: () => void;
+  handleClick: (event: Event) => void;
 };
 
 export interface GroupDefaultOpt {

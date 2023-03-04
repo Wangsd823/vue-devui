@@ -10,6 +10,7 @@ import HomeFooter from './components/HomeFooter.vue'
 import { CONTRIBUTORS_MAP } from './components/PageContributorConfig'
 import PageContributor from './components/PageContributor.vue'
 import { Button } from '@devui/button';
+import { LANG_KEY, ZH_CN, EN_US } from './const';
 
 const Home = defineAsyncComponent(() => import('./components/Home.vue'))
 
@@ -78,16 +79,17 @@ const pageClasses = computed(() => {
     }
   ]
 })
+const initLanguageConfig = () => {
+  // layout组件加载，初始化国际化语言.
+  const result = location.pathname.match(/[a-zA-Z]*-[A-Z]*/)
+  const langList = [ZH_CN, EN_US]
 
-// layout组件加载，初始化国际化语言.
-const result = location.pathname.match(/[a-zA-Z]*-[A-Z]*/)
-const langList = ['zh-CN', 'en-US']
-
-// 避免短横线分隔 (kebab-case）形式的路由命名导致读取语言错误
-if (result && langList.includes(result[0])) {
-  localStorage.setItem('preferred_lang', result[0])
-} else {
-  localStorage.setItem('preferred_lang', navigator.language)
+  // 避免短横线分隔 (kebab-case）形式的路由命名导致读取语言错误
+  if (result && langList.includes(result[0])) {
+    localStorage.setItem(LANG_KEY, result[0])
+  } else {
+    localStorage.setItem(LANG_KEY, navigator.language)
+  }  
 }
 
 // Remove `__VP_STATIC_START__`
@@ -105,6 +107,7 @@ const removeVPStaticFlag = () => {
 }
 
 onMounted(() => {
+  initLanguageConfig()
   removeVPStaticFlag()
 })
 
@@ -270,6 +273,10 @@ const contributors = computed(() => {
 
     img {
       max-width: unset;
+    }
+
+    a:hover {
+      text-decoration: none;
     }
 
     .btn-become-contributor {

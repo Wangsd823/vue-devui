@@ -22,6 +22,7 @@ export default defineComponent({
       size,
       border,
     } = useCheckbox(props, ctx);
+
     return () => {
       const wrapperCls = {
         [ns.e('column-margin')]: direction === 'column',
@@ -55,7 +56,7 @@ export default defineComponent({
         [ns.m('no-animation')]: !mergedShowAnimation.value,
       };
       const labelCls = {
-        [ns.m(size.value)]: border.value,
+        [ns.m(size.value)]: size.value,
         [ns.m('bordered')]: border.value,
       };
       const stopPropagation = ($event: Event) => $event.stopPropagation();
@@ -89,7 +90,7 @@ export default defineComponent({
                   </g>
                 </svg>
               </span>
-              {props.label || ctx.slots.default?.()}
+              <span class={ns.e('label-text')}>{props.label || ctx.slots.default?.()}</span>
             </label>
           </div>
         </div>

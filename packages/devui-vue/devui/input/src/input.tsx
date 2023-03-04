@@ -40,7 +40,9 @@ export default defineComponent({
     const suffixVisible = ctx.slots.suffix || props.suffix || props.showPassword || props.clearable;
 
     const showPwdVisible = computed(() => props.showPassword && !inputDisabled.value);
-    const showClearable = computed(() => props.clearable && !inputDisabled.value);
+    const showClearable = computed(() => {
+      return props.clearable && !inputDisabled.value && modelValue.value?.length > 0;
+    });
 
     watch(
       () => props.modelValue,
@@ -89,7 +91,9 @@ export default defineComponent({
                   onClick={clickPasswordIcon}
                 />
               )}
-              {showClearable.value && <Icon size={inputSize.value} class={ns.em('clear', 'icon')} name="close" onClick={onClear} />}
+              {showClearable.value && (
+                <Icon size={inputSize.value} class={ns.em('clear', 'icon')} name="close" onClick={onClear} />
+              )}
             </span>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { defineComponent, inject, computed } from 'vue';
+import { defineComponent, inject, computed, withModifiers } from 'vue';
 import AlertCloseIcon from '../../../alert/src/components/alert-close-icon';
 import SelectArrowIcon from './select-arrow-icon';
 import { Tag, SizeType } from '../../../tag';
@@ -53,11 +53,7 @@ export default defineComponent({
                 selectedData.value.map((item: OptionObjectItem) => (
                   <Tag
                     deletable
-                    onTagDelete={(e: MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      tagDelete(item);
-                    }}
+                    onTagDelete={withModifiers(() => tagDelete(item), ['prevent', 'stop'])}
                     key={item.value}
                     size={tagSize.value as SizeType}>
                     {item.name}
@@ -66,11 +62,7 @@ export default defineComponent({
               {isSupportCollapseTags.value && selectedData.value.length >= 1 && (
                 <Tag
                   deletable
-                  onTagDelete={(e: MouseEvent) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    tagDelete(selectedData.value[0]);
-                  }}
+                  onTagDelete={withModifiers(() => tagDelete(selectedData.value[0]), ['prevent', 'stop'])}
                   size={tagSize.value as SizeType}>
                   {selectedData.value[0].name}
                 </Tag>
@@ -80,22 +72,21 @@ export default defineComponent({
                   trigger="hover"
                   disabled={isDisabledTooltip.value}
                   v-slots={{
-                    default: () => <Tag size={tagSize.value}>{`+${selectedData.value.length - 1}`}</Tag>,
+                    default: () => <Tag size={tagSize.value as SizeType}>{`+${selectedData.value.length - 1}`}</Tag>,
                     content: () => (
                       <div>
-                        {selectedData.value.map((item: OptionObjectItem) => (
-                          <Tag
-                            deletable
-                            onTagDelete={(e: MouseEvent) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              tagDelete(item);
-                            }}
-                            key={item.value}
-                            size={tagSize.value as SizeType}>
-                            {item.name}
-                          </Tag>
-                        ))}
+                        {selectedData.value.map(
+                          (item: OptionObjectItem, index: number) =>
+                            index !== 0 && (
+                              <Tag
+                                deletable
+                                onTagDelete={withModifiers(() => tagDelete(item), ['prevent', 'stop'])}
+                                key={item.value}
+                                size={tagSize.value as SizeType}>
+                                {item.name}
+                              </Tag>
+                            )
+                        )}
                       </div>
                     ),
                   }}></Popover>

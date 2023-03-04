@@ -36,7 +36,7 @@ export const cascaderProps = {
    * @default 200
    */
   width: {
-    type: Number || String,
+    type: [Number, String],
     default: 200,
   },
   /**
@@ -45,7 +45,7 @@ export const cascaderProps = {
    * @default 200
    */
   dropdownWidth: {
-    type: Number || String,
+    type: [Number, String],
     default: 200,
   },
   /**
@@ -125,8 +125,7 @@ export const cascaderProps = {
     default: () => true,
   },
   size: {
-    type: String as PropType<InputSize>,
-    default: 'md',
+    type: String as PropType<InputSize>
   },
 } as const;
 
@@ -136,7 +135,6 @@ export interface PopupTypes {
   menuShow: Ref<boolean>;
   menuOpenClass: Ref<string>;
   stopDefault: Ref<boolean>;
-  devuiCascader: Ref<HTMLElement | undefined>;
   openPopup: (e?: MouseEvent) => void;
   updateStopDefaultType: () => void;
 }
@@ -189,7 +187,7 @@ export const cascaderulProps = {
    * @default 200
    */
   dropdownWidth: {
-    type: Number || String,
+    type: [Number, String],
     default: 200,
   },
   /**
@@ -258,10 +256,9 @@ export type UseFilterFn = {
 
 export type UseCascaderFn = {
   origin: Ref<HTMLElement | undefined>;
-  overlay: Ref<HTMLElement | undefined>;
+  overlayRef: Ref<HTMLElement | undefined>;
   menuShow: Ref<boolean>;
   cascaderItemNeedProps: CascaderItemNeedType;
-  devuiCascader: Ref<HTMLElement | undefined>;
   rootClasses: ComputedRef<string>;
   menuOpenClass: Ref<string>;
   inputValue: Ref<string>;
